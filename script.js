@@ -2,7 +2,7 @@
 let peer = null;
 let conn = null;
 let currentPlayer = 'black';
-let board = Array(30).fill().map(() => Array(30).fill(null));
+let board = Array(15).fill().map(() => Array(15).fill(null));
 let timer = 99;
 let timerInterval = null;
 let gameStarted = false;
@@ -163,7 +163,7 @@ function checkWin(row, col, player) {
         for (let i = 1; i < 5; i++) {
             const newRow = row + dx * i;
             const newCol = col + dy * i;
-            if (newRow >= 0 && newRow < 30 && newCol >= 0 && newCol < 30 && board[newRow][newCol] === player) {
+            if (newRow >= 0 && newRow < 15 && newCol >= 0 && newCol < 15 && board[newRow][newCol] === player) {
                 count++;
             } else {
                 break;
@@ -174,7 +174,7 @@ function checkWin(row, col, player) {
         for (let i = 1; i < 5; i++) {
             const newRow = row - dx * i;
             const newCol = col - dy * i;
-            if (newRow >= 0 && newRow < 30 && newCol >= 0 && newCol < 30 && board[newRow][newCol] === player) {
+            if (newRow >= 0 && newRow < 15 && newCol >= 0 && newCol < 15 && board[newRow][newCol] === player) {
                 count++;
             } else {
                 break;
