@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋对战</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>五子棋对战</h1>
+        <div class="game-info">
+            <div class="player-info">
+                <div class="player current-player" id="player1">玩家1: 黑棋</div>
+                <div class="player" id="player2">玩家2: 白棋</div>
+            </div>
+            <div class="timer" id="timer">30</div>
+            <div class="status" id="status">等待玩家加入...</div>
+        </div>
+        <div class="board" id="board"></div>
+        <div class="controls">
+            <button id="new-game">新游戏</button>
+            <button id="copy-link">复制链接</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
