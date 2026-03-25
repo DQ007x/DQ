@@ -71,15 +71,15 @@ h1 {
 
 .board {
     display: grid;
-    grid-template-columns: repeat(15, 1fr);
-    grid-template-rows: repeat(15, 1fr);
-    gap: 2px;
+    grid-template-columns: repeat(30, 1fr);
+    grid-template-rows: repeat(30, 1fr);
+    gap: 1px;
     background-color: #d3a667;
     padding: 10px;
     border-radius: 5px;
     margin: 20px 0;
     aspect-ratio: 1;
-    max-width: 500px;
+    max-width: 600px;
     margin-left: auto;
     margin-right: auto;
 }

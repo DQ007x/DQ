@@ -9,18 +9,17 @@
 </head>
 <body>
     <div class="container">
-        <h1>五子棋对战</h1>
+        <h1>DQ五子棋</h1>
         <div class="game-info">
             <div class="player-info">
-                <div class="player current-player" id="player1">玩家1: 黑棋</div>
-                <div class="player" id="player2">玩家2: 白棋</div>
+                <div class="player current-player" id="player1">黑棋: <span id="black-score">0</span></div>
+                <div class="player" id="player2">白棋: <span id="white-score">0</span></div>
             </div>
-            <div class="timer" id="timer">30</div>
-            <div class="status" id="status">等待玩家加入...</div>
+            <div class="timer" id="timer">99</div>
+            <div class="status" id="status">等待玩家连接...</div>
         </div>
         <div class="board" id="board"></div>
         <div class="controls">
-            <button id="new-game">新游戏</button>
             <button id="copy-link">复制链接</button>
         </div>
     </div>

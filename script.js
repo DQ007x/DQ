@@ -2,12 +2,13 @@
 let peer = null;
 let conn = null;
 let currentPlayer = 'black';
-let board = Array(15).fill().map(() => Array(15).fill(null));
-let timer = 30;
+let board = Array(30).fill().map(() => Array(30).fill(null));
+let timer = 99;
 let timerInterval = null;
 let gameStarted = false;
 let playerRole = null;
 let peerId = null;
+let score = { black: 0, white: 0 };
 
 // DOM元素
 const boardElement = document.getElementById('board');
@@ -112,13 +113,18 @@ function handleCellClick(row, col) {
     
     // 检查胜负
     if (checkWin(row, col, currentPlayer)) {
+        // 更新比分
+        score[currentPlayer]++;
+        updateScore();
         statusElement.textContent = `${currentPlayer === 'black' ? '黑棋' : '白棋'}获胜！`;
         gameStarted = false;
         clearInterval(timerInterval);
         // 发送游戏结束消息
         if (conn) {
-            conn.send({ type: 'gameOver', winner: currentPlayer });
+            conn.send({ type: 'gameOver', winner: currentPlayer, score: score });
         }
+        // 3秒后自动开始新游戏
+        setTimeout(continueGame, 3000);
         return;
     }
     
@@ -157,7 +163,7 @@ function checkWin(row, col, player) {
         for (let i = 1; i < 5; i++) {
             const newRow = row + dx * i;
             const newCol = col + dy * i;
-            if (newRow >= 0 && newRow < 15 && newCol >= 0 && newCol < 15 && board[newRow][newCol] === player) {
+            if (newRow >= 0 && newRow < 30 && newCol >= 0 && newCol < 30 && board[newRow][newCol] === player) {
                 count++;
             } else {
                 break;
@@ -168,7 +174,7 @@ function checkWin(row, col, player) {
         for (let i = 1; i < 5; i++) {
             const newRow = row - dx * i;
             const newCol = col - dy * i;
-            if (newRow >= 0 && newRow < 15 && newCol >= 0 && newCol < 15 && board[newRow][newCol] === player) {
+            if (newRow >= 0 && newRow < 30 && newCol >= 0 && newCol < 30 && board[newRow][newCol] === player) {
                 count++;
             } else {
                 break;
@@ -194,10 +200,16 @@ function updatePlayerIndicator() {
     }
 }
 
+// 更新比分
+function updateScore() {
+    document.getElementById('black-score').textContent = score.black;
+    document.getElementById('white-score').textContent = score.white;
+}
+
 // 重置计时器
 function resetTimer() {
     clearInterval(timerInterval);
-    timer = 30;
+    timer = 99;
     timerElement.textContent = timer;
     
     timerInterval = setInterval(() => {
@@ -206,9 +218,18 @@ function resetTimer() {
         
         if (timer <= 0) {
             clearInterval(timerInterval);
-            statusElement.textContent = `${currentPlayer === 'black' ? '黑棋' : '白棋'}超时！`;
+            // 超时处理
+            const winner = currentPlayer === 'black' ? 'white' : 'black';
+            score[winner]++;
+            updateScore();
+            statusElement.textContent = `${currentPlayer === 'black' ? '黑棋' : '白棋'}超时！${winner === 'black' ? '黑棋' : '白棋'}获胜！`;
             gameStarted = false;
-            updateGameState();
+            // 发送超时消息
+            if (conn) {
+                conn.send({ type: 'gameOver', winner: winner, score: score });
+            }
+            // 3秒后自动开始新游戏
+            setTimeout(continueGame, 3000);
         }
     }, 1000);
 }
@@ -296,9 +317,29 @@ function handleReceivedData(data) {
             clearInterval(timerInterval);
         }
     } else if (data.type === 'gameOver') {
+        // 更新比分
+        score = data.score;
+        updateScore();
         statusElement.textContent = `${data.winner === 'black' ? '黑棋' : '白棋'}获胜！`;
         gameStarted = false;
         clearInterval(timerInterval);
+        // 3秒后自动开始新游戏
+        setTimeout(continueGame, 3000);
+    } else if (data.type === 'newGame') {
+        // 重置游戏状态
+        gameStarted = false;
+        clearInterval(timerInterval);
+        initBoard();
+        currentPlayer = 'black';
+        updatePlayerIndicator();
+        statusElement.textContent = '对方开始新游戏...';
+        
+        // 自动开始新游戏
+        setTimeout(() => {
+            gameStarted = true;
+            statusElement.textContent = '游戏进行中...';
+            resetTimer();
+        }, 1000);
     }
 }
 
@@ -317,19 +358,30 @@ function initGame() {
 }
 
 // 事件监听
-newGameButton.addEventListener('click', () => {
-    // 重置游戏
+copyLinkButton.addEventListener('click', copyLink);
+
+// 继续游戏函数
+function continueGame() {
+    // 重置游戏状态
     gameStarted = false;
     clearInterval(timerInterval);
     initBoard();
-    statusElement.textContent = '等待连接...';
-    // 重新初始化Peer
-    if (peer) {
-        peer.destroy();
+    currentPlayer = 'black';
+    updatePlayerIndicator();
+    statusElement.textContent = '准备开始新游戏...';
+    
+    // 如果已连接，通知对方
+    if (conn) {
+        conn.send({ type: 'newGame' });
     }
-    initPeer();
-});
-copyLinkButton.addEventListener('click', copyLink);
+    
+    // 自动开始新游戏
+    setTimeout(() => {
+        gameStarted = true;
+        statusElement.textContent = '游戏进行中...';
+        resetTimer();
+    }, 1000);
+}
 
 // 初始化游戏
 initGame();
